@@ -1,0 +1,5 @@
+- Unable to load the user into the database.
+- was able to load it by removing not null constraint upon the user model.
+- result was - everything except id is still null.
+
+- find way to actually register a user.
