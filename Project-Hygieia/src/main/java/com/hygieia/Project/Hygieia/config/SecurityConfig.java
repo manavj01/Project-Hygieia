@@ -1,4 +1,4 @@
-package com.hygieia.Project.Hygieia.security;
+package com.hygieia.Project.Hygieia.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
