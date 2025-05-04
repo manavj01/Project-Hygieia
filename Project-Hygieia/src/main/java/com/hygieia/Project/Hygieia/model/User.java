@@ -9,6 +9,7 @@ import lombok.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 @Table(name = "users")
 public class User {
 
@@ -29,55 +30,4 @@ public class User {
     @NotBlank(message = "Full name is mandatory")
     private String fullName;
 
-//    public User(Long id, String email, String password, String fullName) {
-//        this.id = id;
-//        this.email = email;
-//        this.password = password;
-//        this.fullName = fullName;
-//    }
-//
-//    public User() {
-//    }
-//
-//    public String getPassword() {
-//        return password;
-//    }
-//
-//    public Long getId() {
-//        return id;
-//    }
-//
-//    public void setId(Long id) {
-//        this.id = id;
-//    }
-//
-//    public @NotBlank(message = "Email is mandatory") @Email(message = "Email should be valid") String getEmail() {
-//        return email;
-//    }
-//
-//    public void setEmail(@NotBlank(message = "Email is mandatory") @Email(message = "Email should be valid") String email) {
-//        this.email = email;
-//    }
-//
-//    public void setPassword(@NotBlank(message = "Password is mandatory") String password) {
-//        this.password = password;
-//    }
-//
-//    public @NotBlank(message = "Full name is mandatory") String getFullName() {
-//        return fullName;
-//    }
-//
-//    public void setFullName(@NotBlank(message = "Full name is mandatory") String fullName) {
-//        this.fullName = fullName;
-//    }
-//
-//    @Override
-//    public String toString() {
-//        return "User{" +
-//                "id=" + id +
-//                ", email='" + email + '\'' +
-//                ", password='" + password + '\'' +
-//                ", fullName='" + fullName + '\'' +
-//                '}';
-//    }
 }

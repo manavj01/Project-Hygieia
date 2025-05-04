@@ -1,8 +1,9 @@
 package com.hygieia.Project.Hygieia.model;
 
 
-import lombok.*;
+import com.hygieia.Project.Hygieia.enums.DocumentType;
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -31,4 +32,7 @@ public class Document {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @Column(name = "document_type", nullable = false)
+    private DocumentType documentType; // Enum to specify the type of document (e.g., PDF, Word, etc.)
 }
