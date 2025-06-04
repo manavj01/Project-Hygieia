@@ -1,29 +1,72 @@
 package com.hygieia.Project.Hygieia.service;
 
+import com.hygieia.Project.Hygieia.dto.DocumentUploadRequest;
 import com.hygieia.Project.Hygieia.model.Document;
+import com.hygieia.Project.Hygieia.model.Upload;
+import com.hygieia.Project.Hygieia.model.User;
 import com.hygieia.Project.Hygieia.repository.DocumentRepository;
+import com.hygieia.Project.Hygieia.repository.UploadRepository;
+import com.hygieia.Project.Hygieia.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-//@RequiredArgsConstructor
 public class DocumentService {
 
     @Autowired
     private DocumentRepository documentRepository;
 
-    public Document uploadDocument(Document document) {
-        return documentRepository.save(document);
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private UploadRepository uploadRepository;
+
+    public String  uploadDocument(DocumentUploadRequest metadata, MultipartFile file) {
+        User user = userRepository.findById(metadata.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Document document = Document.builder()
+                .title(metadata.getTitle())
+                .description(metadata.getDescription())
+                .uploadedAt(LocalDateTime.now())
+                .documentCategory(metadata.getDocumentCategory())
+                .user(user)
+                .build();
+
+        Document savedDocument = documentRepository.save(document);
+
+        try {
+            Upload upload = Upload.builder()
+                    .fileName(file.getOriginalFilename())
+                    .contentType(file.getContentType())
+                    .data(file.getBytes())
+                    .document(savedDocument)
+                    .build();
+
+            uploadRepository.save(upload);
+            return "Document uploaded successfully";
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to upload document file", e);
+        }
+
     }
 
     public List<Document> getDocumentsByUserId(Long userId) {
         return documentRepository.findByUserId(userId);
     }
 
-    public void deleteDocument(Long id) {
-        documentRepository.deleteById(id);
+    public Boolean deleteDocument(Long id) {
+       Boolean isDeleted = documentRepository.deleteDocumentById(id);
+        if (isDeleted) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

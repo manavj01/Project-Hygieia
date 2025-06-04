@@ -5,13 +5,20 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
+import java.io.Serial;
+import java.io.Serializable;
+import java.util.List;
+
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
+@Builder
 @Table(name = "users")
-public class User {
+public class User implements Serializable {
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,15 +26,22 @@ public class User {
 
     @Column(nullable = false, unique = true)
     @NotBlank(message = "Email is mandatory")
-    @Email(message = "Email should be valid")
+    @Email(message = "Please enter a valid email address")
     private String email;
 
     @Column(nullable = false)
     @NotBlank(message = "Password is mandatory")
     private String password;
 
-    @Column(name = "full_name", nullable = false)
-    @NotBlank(message = "Full name is mandatory")
-    private String fullName;
+    @Column(name = "first_name", nullable = false)
+    @NotBlank(message = "First name is mandatory")
+    private String firstName;
+
+    @Column(name = "last_name")
+    private String lastName;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Document> documents;
 
 }
+
