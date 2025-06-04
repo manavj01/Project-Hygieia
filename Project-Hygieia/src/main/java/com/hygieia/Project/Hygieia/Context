@@ -14,5 +14,14 @@ Update 25/05/25
 
 Successful user registration
 
+Update 6/06/25
+
+Successfull Document upload with creation of  Metadata of document uploaded and Uploading a document.
+
+to do:
+1) separate metadta and document upload into two different api calls.
+2) ability Link the uploaded document with existing user.
+3) learn hashing of password and implement it in user registration.
+
 
 
