@@ -15,18 +15,24 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public ResponseEntity<String> registerUser(User user) {
+    public ResponseEntity<User> registerUser(User user) {
         try {
-            userRepository.save(user);
-            return new ResponseEntity<>("User registered successfully", HttpStatus.CREATED);
+            User savedUser = userRepository.save(user);
+            userRepository.save(savedUser);
+            return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
         } catch (Exception e) {
             e.printStackTrace();
-            return new ResponseEntity<>("Failed to register user", HttpStatus.BAD_REQUEST);
+            throw new RuntimeException("Failed to register user: " + e.getMessage());
         }
     }
 
-    public Optional<User> findByEmail(String email) {
-        return userRepository.findByEmail(email);
+    public ResponseEntity<User> findByEmail(String email) {
+        Optional<User> user = userRepository.findByEmail(email);
+        if (user.isPresent()) {
+            return ResponseEntity.ok(user.get());
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
     }
 
     public ResponseEntity<String> loginUser(String email, String password) {
