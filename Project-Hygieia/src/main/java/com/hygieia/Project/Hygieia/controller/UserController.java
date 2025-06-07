@@ -20,8 +20,17 @@ public class UserController {
     public ResponseEntity<?> registerUser(@RequestBody User user) {
         return ResponseEntity.status(HttpStatus.OK).body(userService.registerUser(user).getBody());
     }
-    @GetMapping("/{email}")
-    public ResponseEntity<?> getUserByEmail(@PathVariable String email) throws Exception {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.findByEmail(email));
+    @GetMapping()
+    public ResponseEntity<?> getUser(@RequestParam(required = false) String email,
+                                     @RequestParam(required = false) Long id) throws Exception {
+        if (email != null) {
+            return ResponseEntity.ok(userService.findByEmail(email));
+        } else if (id != null) {
+            return ResponseEntity.ok(userService.findById(id));
+        } else {
+            return ResponseEntity.badRequest().body("Either 'email' or 'id' parameter is required.");
+        }
     }
+
+    
 }

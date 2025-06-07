@@ -27,7 +27,7 @@ public class UserService {
     }
 
     public ResponseEntity<User> findByEmail(String email) {
-        Optional<User> user = userRepository.findByEmail(email);
+        Optional<User> user = userRepository.findUserByEmail(email);
         if (user.isPresent()) {
             return ResponseEntity.ok(user.get());
         } else {
@@ -36,11 +36,20 @@ public class UserService {
     }
 
     public ResponseEntity<String> loginUser(String email, String password) {
-        Optional<User> user = userRepository.findByEmail(email);
+        Optional<User> user = userRepository.findUserByEmail(email);
         if (user.isPresent() && user.get().getPassword().equals(password)) {
             return new ResponseEntity<>("Login successful", HttpStatus.OK);
         } else {
             return new ResponseEntity<>("Invalid email or password", HttpStatus.UNAUTHORIZED);
+        }
+    }
+
+    public ResponseEntity<User> findById(Long id) {
+        try {
+            Optional<User> user = userRepository.findUserById(id);
+            return user.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(null));
+        } catch (Exception e) {
+            throw new RuntimeException("Error finding user with id: " + id, e);
         }
     }
 }
