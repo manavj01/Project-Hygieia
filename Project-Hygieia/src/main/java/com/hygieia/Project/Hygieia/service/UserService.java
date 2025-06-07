@@ -1,5 +1,6 @@
 package com.hygieia.Project.Hygieia.service;
 
+import com.hygieia.Project.Hygieia.dto.UserRegisterRequest;
 import com.hygieia.Project.Hygieia.model.User;
 import com.hygieia.Project.Hygieia.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 @Service
@@ -15,11 +17,24 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    public ResponseEntity<User> registerUser(User user) {
+    public String  registerUser(UserRegisterRequest userRegisterRequest) {
         try {
-            User savedUser = userRepository.save(user);
+            String userEmail = userRegisterRequest.getEmail();
+            if (userEmail != null && userRepository.findUserByEmail(userEmail).isPresent()) {
+                return "User with this ID already exists.";
+            }
+            User savedUser = User.builder()
+                    .firstName(userRegisterRequest.getFirstName())
+                    .lastName(userRegisterRequest.getLastName())
+                    .email(userRegisterRequest.getEmail())
+                    .password(userRegisterRequest.getPassword())
+                    .documents( new ArrayList<>())
+                    .build();
+            // Save the user to the repository
             userRepository.save(savedUser);
-            return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+            return "User registered successfully"
+                    + " with ID: " + savedUser.getId()
+                    + " and Email: " + savedUser.getEmail();
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("Failed to register user: " + e.getMessage());
