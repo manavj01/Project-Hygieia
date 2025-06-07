@@ -31,9 +31,9 @@ public class Document implements Serializable {
 
     private LocalDateTime uploadedAt;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User user;
+
+    @Column(name = "user_id")
+    private Long userId;
 
     @Column(name = "document_category", nullable = false)
     @Enumerated(EnumType.STRING)

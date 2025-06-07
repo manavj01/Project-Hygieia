@@ -40,7 +40,8 @@ public class User implements Serializable {
     @Column(name = "last_name")
     private String lastName;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Transient
+    @Column(name = "documents" )
     private List<Document> documents;
 
 }
