@@ -3,9 +3,10 @@ package com.hygieia.Project.Hygieia.controller;
 import com.hygieia.Project.Hygieia.dto.DocumentUploadRequest;
 import com.hygieia.Project.Hygieia.enums.DocumentCategory;
 import com.hygieia.Project.Hygieia.model.Document;
+import com.hygieia.Project.Hygieia.model.Upload;
 import com.hygieia.Project.Hygieia.service.DocumentService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +17,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("api/documents")
-//@RequiredArgsConstructor
 public class DocumentController {
 
     @Autowired
@@ -52,5 +52,16 @@ public class DocumentController {
         return ResponseEntity.ok(documentService.uploadDocument(metadata, file));
     }
 
+    @GetMapping("/{documentId}")
+    public ResponseEntity<?> getDocumentById(@PathVariable Long documentId) {
+        Upload upload = documentService.getDocumentById(documentId);
+        if (upload == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Document not found");
+        }
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + upload.getFileName() + "\"")
+                .contentType(MediaType.parseMediaType(upload.getContentType()))
+                .body(upload.getData());
+    }
 
 }

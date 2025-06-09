@@ -7,6 +7,7 @@ import com.hygieia.Project.Hygieia.model.User;
 import com.hygieia.Project.Hygieia.repository.DocumentRepository;
 import com.hygieia.Project.Hygieia.repository.UploadRepository;
 import com.hygieia.Project.Hygieia.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -72,6 +73,21 @@ public class DocumentService {
             return true;
         } else {
             return false;
+        }
+    }
+
+    @Transactional
+    public Upload getDocumentById(Long documentId) {
+        try {
+
+            Upload upload = uploadRepository.findByDocumentId(documentId);
+//            if (upload == null ) {
+//                throw new RuntimeException("No document found with the given ID");
+//            }
+            return upload;
+        } catch (Exception e) {
+            log.error("Error retrieving document: " + e.getMessage());
+            throw new RuntimeException("Failed to retrieve document", e);
         }
     }
 }
