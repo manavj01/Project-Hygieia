@@ -16,7 +16,7 @@ Successful user registration
 
 Update 6/06/25
 
-Successfull Document upload with creation of  Metadata of document uploaded and Uploading a document.
+Successfully completed Document uploading api's with creation of document Metadata and document uploaded api.
 
 
 
@@ -24,12 +24,21 @@ update 8/06/25
 
 Successful user registration and fetching complete.
 
+update 10/06/25
+
+Hosted postgresDB on AWS RDS and connected it with the backend.
+
+update 11/06/25
+
+added api update user object to include a list of documents uploaded by the user.
+
 to do:
-1) separate metadta and document upload into two different api calls.
-2) ability Link the uploaded document with existing user.
+1) separate metadata and document upload into two different api calls.
 3) learn hashing of password and implement it in user registration.
-4) fetch documents by user id.
 5) fetch documents by user id and documentCategory.
 6) make changes in the document upload api to assign the document to a user.
+7) host backend on aws after password encryption is done.
 
-
+complete:
+2) ability Link the uploaded document with existing user.
+4) fetch documents by user id.
