@@ -28,7 +28,7 @@ public class DocumentController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteDocument(@PathVariable Long id) {
+    public ResponseEntity<?> deleteDocument(@PathVariable Long id) throws Exception {
         boolean isDeleted = documentService.deleteDocument(id);
         if (isDeleted) {
             return ResponseEntity.ok("Document deleted successfully");

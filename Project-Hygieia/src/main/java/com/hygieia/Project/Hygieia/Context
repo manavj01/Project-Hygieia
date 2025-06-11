@@ -32,12 +32,17 @@ update 11/06/25
 
 added api update user object to include a list of documents uploaded by the user.
 
-to do:
+12/06/25
+added user and document service interface
+added user response dto for security.
+
+TODO:
 1) separate metadata and document upload into two different api calls.
 3) learn hashing of password and implement it in user registration.
 5) fetch documents by user id and documentCategory.
 6) make changes in the document upload api to assign the document to a user.
 7) host backend on aws after password encryption is done.
+8) add userResponse dto to fetch user details with documents.
 
 complete:
 2) ability Link the uploaded document with existing user.
