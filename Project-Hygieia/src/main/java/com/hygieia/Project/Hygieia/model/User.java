@@ -7,6 +7,7 @@ import lombok.*;
 
 import java.io.Serial;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -42,7 +43,7 @@ public class User implements Serializable {
 
     @Transient
     @Column(name = "documents" )
-    private List<Document> documents;
+    private List<Document> documents = new ArrayList<>();
 
 }
 

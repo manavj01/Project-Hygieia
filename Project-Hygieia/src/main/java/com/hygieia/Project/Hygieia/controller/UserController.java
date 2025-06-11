@@ -19,17 +19,22 @@ public class UserController {
     public ResponseEntity<?> registerUser(@RequestBody UserRegisterRequest userRegisterRequest) {
         return ResponseEntity.status(HttpStatus.OK).body(userService.registerUser(userRegisterRequest));
     }
-    @GetMapping("/")
+
+    @PostMapping("/getUserByEmailOrId")
     public ResponseEntity<?> getUser(@RequestParam(required = false) String email,
                                      @RequestParam(required = false) Long id) throws Exception {
-        if (email != null) {
-            return ResponseEntity.status(HttpStatus.OK).body(userService.findByEmail(email));
-        } else if (id != null) {
-            return ResponseEntity.status(HttpStatus.OK).body(userService.findById(id));
+        if (id != null) {
+            return ResponseEntity.status(HttpStatus.OK).body(userService.findUserById(id));
+        } else if (email != null) {
+            return ResponseEntity.status(HttpStatus.OK).body(userService.findUserByEmail(email));
         } else {
             return ResponseEntity.badRequest().body("Either 'email' or 'id' parameter is required.");
         }
     }
 
+    @PostMapping("/updateUserDocumentList")
+    public ResponseEntity<?> updateUserDocumentList(@RequestParam Long userId) {
+        return ResponseEntity.status(HttpStatus.OK).body(userService.updateUserDocumentList(userId));
+    }
     
 }

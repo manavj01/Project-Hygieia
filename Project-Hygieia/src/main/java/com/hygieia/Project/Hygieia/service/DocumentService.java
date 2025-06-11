@@ -64,7 +64,7 @@ public class DocumentService {
     }
 
     public List<Document> getDocumentsByUserId(Long userId) {
-        return documentRepository.findByUserId(userId);
+        return documentRepository.findDocumentsByUserId(userId);
     }
 
     public Boolean deleteDocument(Long id) {
@@ -77,7 +77,7 @@ public class DocumentService {
     }
 
     @Transactional
-    public Upload getDocumentById(Long documentId) {
+    public Upload downloadDocumentById(Long documentId) {
         try {
 
             Upload upload = uploadRepository.findByDocumentId(documentId);

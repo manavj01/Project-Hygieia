@@ -22,7 +22,7 @@ public class DocumentController {
     @Autowired
     private DocumentService documentService;
 
-    @GetMapping("/user/{userId}")
+    @GetMapping("/getAllDocuments/{userId}")
     public ResponseEntity<List<Document>> getDocumentsByUser(@PathVariable Long userId) {
         return ResponseEntity.ok(documentService.getDocumentsByUserId(userId));
     }
@@ -53,8 +53,8 @@ public class DocumentController {
     }
 
     @GetMapping("/{documentId}")
-    public ResponseEntity<?> getDocumentById(@PathVariable Long documentId) {
-        Upload upload = documentService.getDocumentById(documentId);
+    public ResponseEntity<?> downloadDocumentById(@PathVariable Long documentId) {
+        Upload upload = documentService.downloadDocumentById(documentId);
         if (upload == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Document not found");
         }
