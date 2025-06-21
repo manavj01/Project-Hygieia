@@ -31,12 +31,14 @@ public class Document implements Serializable {
 
     private LocalDateTime uploadedAt;
 
-
     @Column(name = "user_id")
-    private Long userId;
+    private Long userId; // THis is kept to make querying easier.
 
     @Column(name = "document_category", nullable = false)
     @Enumerated(EnumType.STRING)
     private DocumentCategory documentCategory;
 
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "upload_id", unique = true)
+    private Upload upload;
 }

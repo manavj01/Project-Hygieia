@@ -7,17 +7,16 @@ import lombok.*;
 
 import java.io.Serial;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 @Builder
 @Table(name = "users")
 public class User implements Serializable {
+
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -41,9 +40,10 @@ public class User implements Serializable {
     @Column(name = "last_name")
     private String lastName;
 
-    @Transient
-    @Column(name = "documents" )
-    private List<Document> documents = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY,orphanRemoval = true)
+    @JoinColumn(name = "user_id")
+    private List<Document> documents;
 
 }
 

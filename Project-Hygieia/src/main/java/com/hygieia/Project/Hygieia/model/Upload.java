@@ -15,6 +15,7 @@ import java.io.Serializable;
 @Builder
 public class Upload implements Serializable {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     @Id
@@ -29,8 +30,5 @@ public class Upload implements Serializable {
     @Column(nullable = false)
     private byte[] data;
 
-    @OneToOne
-    @JoinColumn(name = "document_id")
-    private Document document;
 
 }
