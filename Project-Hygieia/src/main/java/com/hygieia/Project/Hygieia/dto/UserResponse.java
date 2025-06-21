@@ -13,5 +13,5 @@ public class UserResponse {
     String firstName;
     String lastName;
     String email;
-    List<Document> documents;
+    List<DocumentResponse> documents;
 }

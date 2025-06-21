@@ -1,6 +1,8 @@
 package com.hygieia.Project.Hygieia.controller;
 
 
+import com.hygieia.Project.Hygieia.dto.ApiResponse;
+import com.hygieia.Project.Hygieia.dto.UserLoginRequest;
 import com.hygieia.Project.Hygieia.dto.UserRegisterRequest;
 import com.hygieia.Project.Hygieia.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,26 +17,32 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/register")
+    @PostMapping("/signup")
     public ResponseEntity<?> registerUser(@RequestBody UserRegisterRequest userRegisterRequest) {
         return ResponseEntity.status(HttpStatus.OK).body(userService.registerUser(userRegisterRequest));
     }
 
-    @PostMapping("/getUserByEmailOrId")
-    public ResponseEntity<?> getUser(@RequestParam(required = false) String email,
-                                     @RequestParam(required = false) Long id) throws Exception {
-        if (id != null) {
-            return ResponseEntity.status(HttpStatus.OK).body(userService.findUserById(id));
-        } else if (email != null) {
-            return ResponseEntity.status(HttpStatus.OK).body(userService.findUserByEmail(email));
-        } else {
-            return ResponseEntity.badRequest().body("Either 'email' or 'id' parameter is required.");
+    @PostMapping("/login")
+    public ResponseEntity<?> loginUser(@RequestBody UserLoginRequest userLoginRequest) {
+        try {
+            String message = userService.loginUser(userLoginRequest.getEmail(), userLoginRequest.getPassword());
+            return ResponseEntity.ok(new ApiResponse(message, true));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ApiResponse(e.getMessage(), false));
         }
     }
 
-    @PostMapping("/updateUserDocumentList")
-    public ResponseEntity<?> updateUserDocumentList(@RequestParam Long userId) {
-        return ResponseEntity.status(HttpStatus.OK).body(userService.updateUserDocumentList(userId));
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getUserById(@PathVariable Long id) throws Exception {
+        return ResponseEntity.ok(userService.findUserById(id));
     }
-    
+
+    // GET /api/users/email?value=xyz@example.com
+    @GetMapping("/email")
+    public ResponseEntity<?> getUserByEmail(@RequestParam String email) throws Exception {
+        return ResponseEntity.ok(userService.findUserByEmail(email));
+    }
+
+
 }

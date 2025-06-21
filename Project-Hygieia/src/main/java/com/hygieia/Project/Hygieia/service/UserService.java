@@ -11,5 +11,5 @@ public interface UserService {
 
     UserResponse findUserByEmail(String email) throws Exception;
 
-    String updateUserDocumentList(Long userId);
+    String loginUser(String email, String password);
 }
