@@ -9,6 +9,6 @@ import java.util.List;
 
 @Repository
 public interface UploadRepository extends JpaRepository<Upload, Long> {
-    Upload findByDocumentId(Long documentId);
-    byte[] findDocumentById(Long id);
+//    Upload findByDocumentId(Long documentId);
+//    byte[] findDocumentById(Long id);
 }

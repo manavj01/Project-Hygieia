@@ -1,6 +1,8 @@
 package com.hygieia.Project.Hygieia.service;
 
+import com.hygieia.Project.Hygieia.dto.DocumentResponse;
 import com.hygieia.Project.Hygieia.dto.DocumentUploadRequest;
+import com.hygieia.Project.Hygieia.enums.DocumentCategory;
 import com.hygieia.Project.Hygieia.model.Document;
 import com.hygieia.Project.Hygieia.model.Upload;
 import com.hygieia.Project.Hygieia.model.User;
@@ -29,30 +31,28 @@ public class DocumentServiceImpl implements DocumentService {
     @Autowired
     private UploadRepository uploadRepository;
 
-    public String  uploadDocument(DocumentUploadRequest metadata, MultipartFile file) {
-        User user = userRepository.findById(metadata.getUserId())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        Document document = Document.builder()
-                .title(metadata.getTitle())
-                .description(metadata.getDescription())
-                .uploadedAt(LocalDateTime.now())
-                .documentCategory(metadata.getDocumentCategory())
-                .userId(user.getId())
-                .build();
-
-        Document savedDocument = documentRepository.save(document);
-
+    public String uploadDocument(DocumentUploadRequest metadata, MultipartFile file) {
         try {
+            User user = userRepository.findById(metadata.getUserId())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+
+            Document document = Document.builder()
+                    .title(metadata.getTitle())
+                    .description(metadata.getDescription())
+                    .uploadedAt(LocalDateTime.now())
+                    .documentCategory(metadata.getDocumentCategory())
+                    .userId(user.getId())
+                    .build();
+
+
             Upload upload = Upload.builder()
                     .fileName(file.getOriginalFilename())
                     .contentType(file.getContentType())
                     .data(file.getBytes())
-                    .document(savedDocument)
                     .build();
 
-
-            uploadRepository.save(upload);
+            document.setUpload(upload);
+            documentRepository.save(document); // save the document which also saves the upload due to CascadeType.ALL
 
             log.info("File uploaded successfully: " + file.getOriginalFilename());
             return "Document uploaded successfully";
@@ -60,15 +60,26 @@ public class DocumentServiceImpl implements DocumentService {
             log.warn("Failed to upload file: " + e.getMessage());
             throw new RuntimeException("Failed to upload document file", e);
         }
-
     }
 
-    public List<Document> getDocumentsByUserId(Long userId) {
-        return documentRepository.findDocumentsByUserId(userId);
+    @Transactional
+    public List<DocumentResponse> getDocumentsByUserId(Long userId) {
+        List<Document> documents = documentRepository.findDocumentsByUserId(userId);
+        List<DocumentResponse> documentResponsesDTO = documents.stream().map(
+                document -> DocumentResponse.builder()
+                        .title(document.getTitle())
+                        .description(document.getDescription())
+                        .uploadedAt(document.getUploadedAt())
+                        .documentCategory(document.getDocumentCategory())
+                        .build()
+        ).toList();
+        DocumentResponse.builder().build();
+
+        return documentResponsesDTO;
     }
 
     public boolean deleteDocument(Long id) {
-       boolean isDeleted = documentRepository.deleteDocumentById(id);
+        boolean isDeleted = documentRepository.deleteDocumentById(id);
         if (isDeleted) {
             return true;
         } else {
@@ -79,8 +90,9 @@ public class DocumentServiceImpl implements DocumentService {
     @Transactional
     public Upload downloadDocumentById(Long documentId) {
         try {
-            Upload upload = uploadRepository.findByDocumentId(documentId);
-            if (upload == null ) {
+            Document document = documentRepository.findDocumentById(documentId);
+            Upload upload = document.getUpload();
+            if (upload == null) {
                 throw new RuntimeException("No document found with the given ID");
             }
             return upload;
@@ -89,4 +101,18 @@ public class DocumentServiceImpl implements DocumentService {
             throw new RuntimeException("Failed to retrieve document", e);
         }
     }
+
+    @Transactional
+    public List<DocumentResponse> getDocumentsByCategory(DocumentCategory documentCategory, Long userId) {
+        List<Document> documents = documentRepository.findDocumentsByUserIdAndDocumentCategory(userId, documentCategory);
+        return documents.stream().map(
+                document -> DocumentResponse.builder()
+                        .title(document.getTitle())
+                        .description(document.getDescription())
+                        .uploadedAt(document.getUploadedAt())
+                        .documentCategory(document.getDocumentCategory())
+                        .build()
+        ).toList();
+    }
+
 }

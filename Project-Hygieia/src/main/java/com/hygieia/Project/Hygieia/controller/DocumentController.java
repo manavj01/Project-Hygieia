@@ -16,18 +16,18 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 @RestController
-@RequestMapping("api/documents")
+@RequestMapping("/api")
 public class DocumentController {
 
     @Autowired
     private DocumentService documentService;
 
-    @GetMapping("/getAllDocuments/{userId}")
-    public ResponseEntity<List<Document>> getDocumentsByUser(@PathVariable Long userId) {
+    @GetMapping("/users/{userId}/documents")
+    public ResponseEntity<?> getDocumentsByUserId(@PathVariable Long userId) {
         return ResponseEntity.ok(documentService.getDocumentsByUserId(userId));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/documents/{id}")
     public ResponseEntity<?> deleteDocument(@PathVariable Long id) throws Exception {
         boolean isDeleted = documentService.deleteDocument(id);
         if (isDeleted) {
@@ -37,7 +37,7 @@ public class DocumentController {
         }
     }
 
-    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/users/{userId}/documents", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadDocument(@RequestParam String title,
                                             @RequestParam String description,
                                             @RequestParam DocumentCategory documentCategory,
@@ -52,7 +52,7 @@ public class DocumentController {
         return ResponseEntity.ok(documentService.uploadDocument(metadata, file));
     }
 
-    @GetMapping("/{documentId}")
+    @GetMapping("/documents/{documentId}")
     public ResponseEntity<?> downloadDocumentById(@PathVariable Long documentId) {
         Upload upload = documentService.downloadDocumentById(documentId);
         if (upload == null) {
@@ -62,6 +62,12 @@ public class DocumentController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + upload.getFileName() + "\"")
                 .contentType(MediaType.parseMediaType(upload.getContentType()))
                 .body(upload.getData());
+    }
+
+    @GetMapping("/documents/category")
+    public ResponseEntity<?> getDocumentsByCategory(@RequestParam DocumentCategory documentCategory,
+                                                    @RequestParam Long userId) {
+        return ResponseEntity.status(HttpStatus.OK).body(documentService.getDocumentsByCategory(documentCategory, userId));
     }
 
 }

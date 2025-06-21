@@ -36,6 +36,18 @@ added api update user object to include a list of documents uploaded by the user
 added user and document service interface
 added user response dto for security.
 
+20/06/25
+Implemented Global Exception Handling.
+Api for fetching documents by user id and document category.
+Changed Entity relationship to unidirectional from bidirectional.
+User -> Document (OneToMany) Unidirectional.
+Document -> Upload (OneToOne) Unidirectional.
+
+
+Question:
+TO Persist or not to persist the documents in the User Object and
+map both obj  as bidirectional relationship?
+
 TODO:
 1) separate metadata and document upload into two different api calls.
 3) learn hashing of password and implement it in user registration.
