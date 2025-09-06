@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,6 +45,7 @@ public class UserServiceImpl implements UserService {
                     .email(userRegisterRequest.getEmail())
                     .password(hashedPassword)
                     .documents(new ArrayList<>())
+                    .createdAt(LocalDateTime.now())
                     .build();
             // Save the user to the repository
             userRepository.save(savedUser);
@@ -61,9 +63,11 @@ public class UserServiceImpl implements UserService {
         try {
             User user = userRepository.findUserByEmail(email);
             if (user == null) {
+                log.warn("User Login Failed - email not found: {}", email);
                 throw new UserNotFoundException("User not found with email: " + email);
             }
             if (!passwordEncoder.matches(password, user.getPassword())) {
+                log.warn("User Login Failed - Invalid Password: {}", email);
                 throw new RuntimeException("Invalid password");
             }
             log.info("User Login Successful: {}", user.getEmail());
@@ -103,14 +107,12 @@ public class UserServiceImpl implements UserService {
 
         try {
             List<DocumentResponse> documentResponse = user.getDocuments().stream().map(
-                    document -> {
-                        return DocumentResponse.builder()
-                                .title(document.getTitle())
-                                .description(document.getDescription())
-                                .uploadedAt(document.getUploadedAt())
-                                .documentCategory(document.getDocumentCategory())
-                                .build();
-                    }
+                    document -> DocumentResponse.builder()
+                            .title(document.getTitle())
+                            .description(document.getDescription())
+                            .uploadedAt(document.getUploadedAt())
+                            .documentCategory(document.getDocumentCategory())
+                            .build()
             ).toList();
 
             return UserResponse.builder()
