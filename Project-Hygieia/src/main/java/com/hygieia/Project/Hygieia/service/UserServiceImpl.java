@@ -94,6 +94,7 @@ public class UserServiceImpl implements UserService {
     }
 
 
+    @Transactional
     public UserResponse findUserById(Long id) {
 
         User user = userRepository.findUserById(id);
