@@ -38,7 +38,6 @@ public class UserController {
         return ResponseEntity.ok(userService.findUserById(id));
     }
 
-    // GET /api/users/email?value=xyz@example.com
     @GetMapping("/email")
     public ResponseEntity<?> getUserByEmail(@RequestParam String email) throws Exception {
         return ResponseEntity.ok(userService.findUserByEmail(email));

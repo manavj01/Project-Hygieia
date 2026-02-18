@@ -1,0 +1,10 @@
+:root {
+    font-family: Inter, system-ui, Arial, sans-serif;
+    color: #111827;
+    background: #f9fafb;
+  }
+  
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  a { color: inherit; }
+  
