@@ -3,6 +3,7 @@ package com.hygieia.Project.Hygieia.controller;
 
 import com.hygieia.Project.Hygieia.dto.ApiResponse;
 import com.hygieia.Project.Hygieia.dto.UserLoginRequest;
+import com.hygieia.Project.Hygieia.dto.UserLoginResponse;
 import com.hygieia.Project.Hygieia.dto.UserRegisterRequest;
 import com.hygieia.Project.Hygieia.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +26,9 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<?> loginUser(@RequestBody UserLoginRequest userLoginRequest) {
         try {
-            String message = userService.loginUser(userLoginRequest.getEmail(), userLoginRequest.getPassword());
-            return ResponseEntity.ok(new ApiResponse(message, true));
+            UserLoginResponse response =
+                    userService.loginUser(userLoginRequest.getEmail(), userLoginRequest.getPassword());
+            return ResponseEntity.ok(response);
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new ApiResponse(e.getMessage(), false));

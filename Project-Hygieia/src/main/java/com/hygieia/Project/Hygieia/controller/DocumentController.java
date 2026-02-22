@@ -1,6 +1,7 @@
 package com.hygieia.Project.Hygieia.controller;
 
 import com.hygieia.Project.Hygieia.dto.DocumentUploadRequest;
+import com.hygieia.Project.Hygieia.dto.DownloadedFileResponse;
 import com.hygieia.Project.Hygieia.enums.DocumentCategory;
 import com.hygieia.Project.Hygieia.model.Document;
 import com.hygieia.Project.Hygieia.model.Upload;
@@ -22,10 +23,6 @@ public class DocumentController {
     @Autowired
     private DocumentService documentService;
 
-    @GetMapping("/users/{userId}/documents")
-    public ResponseEntity<?> getDocumentsByUserId(@PathVariable Long userId) {
-        return ResponseEntity.ok(documentService.getDocumentsByUserId(userId));
-    }
 
     @DeleteMapping("/documents/{id}")
     public ResponseEntity<?> deleteDocument(@PathVariable Long id) throws Exception {
@@ -37,37 +34,37 @@ public class DocumentController {
         }
     }
 
-    @PostMapping(value = "/users/{userId}/documents", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/users/documents", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadDocument(@RequestParam String title,
                                             @RequestParam String description,
                                             @RequestParam DocumentCategory documentCategory,
-                                            @RequestParam Long userId,
                                             @RequestPart("file") MultipartFile file) {
         DocumentUploadRequest metadata = DocumentUploadRequest.builder()
                 .title(title)
                 .description(description)
                 .documentCategory(documentCategory)
-                .userId(userId)
                 .build();
-        return ResponseEntity.ok(documentService.uploadDocument(metadata, file));
+        return ResponseEntity.status(HttpStatus.CREATED).body(documentService.uploadDocument(metadata, file));
     }
 
-    @GetMapping("/documents/{documentId}")
-    public ResponseEntity<?> downloadDocumentById(@PathVariable Long documentId) {
-        Upload upload = documentService.downloadDocumentById(documentId);
-        if (upload == null) {
+    @GetMapping("/documents/{documentId}/download")
+    public ResponseEntity<?> downloadDocument(@PathVariable Long documentId) {
+        DownloadedFileResponse file = documentService.downloadUserDocumentById(documentId);
+        if (file == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Document not found");
         }
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + upload.getFileName() + "\"")
-                .contentType(MediaType.parseMediaType(upload.getContentType()))
-                .body(upload.getData());
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFileName() + "\"")
+                .contentType(MediaType.parseMediaType(file.getContentType()))
+                .body(file.getData());
     }
 
-    @GetMapping("/documents/category")
-    public ResponseEntity<?> getDocumentsByCategory(@RequestParam DocumentCategory documentCategory,
-                                                    @RequestParam Long userId) {
-        return ResponseEntity.status(HttpStatus.OK).body(documentService.getDocumentsByCategory(documentCategory, userId));
+    @GetMapping("/documents")
+    public ResponseEntity<?> getDocumentsByCategory(@RequestParam(required = false) DocumentCategory documentCategory) {
+        if (documentCategory == null){
+            return ResponseEntity.ok(documentService.getUserDocuments());
+        }
+        return ResponseEntity.ok(documentService.getUserDocumentsByCategory(documentCategory));
     }
 
 }

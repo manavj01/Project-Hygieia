@@ -10,5 +10,4 @@ public class DocumentUploadRequest {
     private String title;
     private String description;
     private DocumentCategory documentCategory; // Assuming this is a string representation of the DocumentType enum
-    private Long userId; // Assuming this is the ID of the user uploading the document
 }

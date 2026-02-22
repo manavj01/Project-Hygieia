@@ -1,5 +1,9 @@
 package com.hygieia.Project.Hygieia.config;
 
+import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.OpenAPI;
+import io.swagger.v3.oas.models.security.SecurityRequirement;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.springdoc.core.models.GroupedOpenApi;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -12,5 +16,22 @@ public class SwaggerConfig {
                 .group("public")
                 .pathsToMatch("/**")
                 .build();
+    }
+
+    @Bean
+    public OpenAPI openAPI() {
+        final String schemeName = "bearerAuth";
+
+        return new OpenAPI()
+                // This makes swagger apply bearerAuth by default to endpoints
+                .addSecurityItem(new SecurityRequirement().addList(schemeName))
+                .components(new Components().addSecuritySchemes(
+                        schemeName,
+                        new SecurityScheme()
+                                .name(schemeName)
+                                .type(SecurityScheme.Type.HTTP)
+                                .scheme("bearer")
+                                .bearerFormat("JWT")
+                ));
     }
 }

@@ -1,6 +1,7 @@
 package com.hygieia.Project.Hygieia.service;
 
 import com.hygieia.Project.Hygieia.dto.DocumentResponse;
+import com.hygieia.Project.Hygieia.dto.UserLoginResponse;
 import com.hygieia.Project.Hygieia.dto.UserRegisterRequest;
 import com.hygieia.Project.Hygieia.dto.UserResponse;
 import com.hygieia.Project.Hygieia.exceptionHandling.UserNotFoundException;
@@ -8,6 +9,7 @@ import com.hygieia.Project.Hygieia.exceptionHandling.UserResponseBuildException;
 import com.hygieia.Project.Hygieia.model.User;
 import com.hygieia.Project.Hygieia.repository.DocumentRepository;
 import com.hygieia.Project.Hygieia.repository.UserRepository;
+import com.hygieia.Project.Hygieia.security.JwtService;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +19,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Service
@@ -30,6 +33,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtService jwtService;
 
     public String registerUser(UserRegisterRequest userRegisterRequest) {
         try {
@@ -59,23 +65,27 @@ public class UserServiceImpl implements UserService {
     }
 
     @Transactional
-    public String loginUser(String email, String password) {
-        try {
-            User user = userRepository.findUserByEmail(email);
-            if (user == null) {
-                log.warn("User Login Failed - email not found: {}", email);
-                throw new UserNotFoundException("User not found with email: " + email);
-            }
-            if (!passwordEncoder.matches(password, user.getPassword())) {
-                log.warn("User Login Failed - Invalid Password: {}", email);
-                throw new RuntimeException("Invalid password");
-            }
-            log.info("User Login Successful: {}", user.getEmail());
-            return "Login Successful!";
-        } catch (Exception e) {
-            log.error("Login failed for user with email: {}", email, e);
-            throw new RuntimeException("Login failed: " + e.getMessage());
+    public UserLoginResponse loginUser(String email, String password) {
+
+        User user = userRepository.findUserByEmail(email);
+
+        if (user == null) {
+            log.warn("User Login Failed - email not found: {}", email);
+            throw new UserNotFoundException("User not found with email: " + email);
         }
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            log.warn("User Login Failed - Invalid Password: {}", email);
+            throw new RuntimeException("Invalid password");
+        }
+
+        String token = jwtService.generateToken(
+                user.getEmail(),
+                Map.of("userId", user.getId())
+        );
+
+        log.info("User Login Successful: {}", user.getEmail());
+        return new UserLoginResponse("Login Successful!", token);
     }
 
     @Transactional
