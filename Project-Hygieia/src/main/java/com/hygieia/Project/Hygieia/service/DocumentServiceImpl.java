@@ -2,6 +2,7 @@ package com.hygieia.Project.Hygieia.service;
 
 import com.hygieia.Project.Hygieia.dto.DocumentResponse;
 import com.hygieia.Project.Hygieia.dto.DocumentUploadRequest;
+import com.hygieia.Project.Hygieia.dto.DownloadedFileResponse;
 import com.hygieia.Project.Hygieia.enums.DocumentCategory;
 import com.hygieia.Project.Hygieia.model.Document;
 import com.hygieia.Project.Hygieia.model.Upload;
@@ -9,13 +10,17 @@ import com.hygieia.Project.Hygieia.model.User;
 import com.hygieia.Project.Hygieia.repository.DocumentRepository;
 import com.hygieia.Project.Hygieia.repository.UploadRepository;
 import com.hygieia.Project.Hygieia.repository.UserRepository;
-import jakarta.transaction.Transactional;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -31,10 +36,20 @@ public class DocumentServiceImpl implements DocumentService {
     @Autowired
     private UploadRepository uploadRepository;
 
+    private User getCurrentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth == null || !auth.isAuthenticated()) {
+            throw new RuntimeException("Unauthorized");
+        }
+        String email = auth.getName(); // this is your JWT subject
+        User user = userRepository.findUserByEmail(email);
+        if (user == null) throw new RuntimeException("User not found for token");
+        return user;
+    }
+
     public String uploadDocument(DocumentUploadRequest metadata, MultipartFile file) {
         try {
-            User user = userRepository.findById(metadata.getUserId())
-                    .orElseThrow(() -> new RuntimeException("User not found"));
+            User user = getCurrentUser();
 
             Document document = Document.builder()
                     .title(metadata.getTitle())
@@ -63,9 +78,11 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Transactional
-    public List<DocumentResponse> getDocumentsByUserId(Long userId) {
-        List<Document> documents = documentRepository.findDocumentsByUserId(userId);
-        List<DocumentResponse> documentResponsesDTO = documents.stream().map(
+    public List<DocumentResponse> getUserDocuments() {
+        User user = getCurrentUser();
+        List<Document> documents = documentRepository.findDocumentsByUserId(user.getId());
+
+        return documents.stream().map(
                 document -> DocumentResponse.builder()
                         .title(document.getTitle())
                         .description(document.getDescription())
@@ -73,38 +90,48 @@ public class DocumentServiceImpl implements DocumentService {
                         .documentCategory(document.getDocumentCategory())
                         .build()
         ).toList();
-        DocumentResponse.builder().build();
-
-        return documentResponsesDTO;
-    }
-
-    public boolean deleteDocument(Long id) {
-        boolean isDeleted = documentRepository.deleteDocumentById(id);
-        if (isDeleted) {
-            return true;
-        } else {
-            return false;
-        }
     }
 
     @Transactional
-    public Upload downloadDocumentById(Long documentId) {
-        try {
-            Document document = documentRepository.findDocumentById(documentId);
-            Upload upload = document.getUpload();
-            if (upload == null) {
-                throw new RuntimeException("No document found with the given ID");
-            }
-            return upload;
-        } catch (Exception e) {
-            log.error("Error retrieving document: " + e.getMessage());
-            throw new RuntimeException("Failed to retrieve document", e);
-        }
+    public boolean deleteDocument(Long documentId) {
+        User user = getCurrentUser();
+
+        Document document = documentRepository.findDocumentById(documentId);
+        if (document == null) return false;
+        if (!user.getId().equals(document.getUserId())) throw new RuntimeException("Forbidden");
+        int row = documentRepository.deleteDocumentById(documentId);
+
+        return row == 1;
     }
 
     @Transactional
-    public List<DocumentResponse> getDocumentsByCategory(DocumentCategory documentCategory, Long userId) {
-        List<Document> documents = documentRepository.findDocumentsByUserIdAndDocumentCategory(userId, documentCategory);
+    public DownloadedFileResponse downloadUserDocumentById(Long documentId) {
+        User user = getCurrentUser();
+
+        Document document = documentRepository.findDocumentById(documentId);
+        if (document == null) throw new RuntimeException("Document not found");
+
+        if (!user.getId().equals(document.getUserId())) {
+            throw new RuntimeException("Forbidden");
+        }
+
+        Upload upload = document.getUpload();
+        if (upload == null) throw new RuntimeException("No file for this document");
+
+        byte[] data = upload.getData();
+
+        return DownloadedFileResponse.builder()
+                .fileName(upload.getFileName())
+                .contentType(upload.getContentType())
+                .data(data)
+                .build();
+    }
+
+    @Transactional
+    public List<DocumentResponse> getUserDocumentsByCategory(DocumentCategory documentCategory) {
+        User user = getCurrentUser();
+        List<Document> documents = documentRepository.findDocumentsByUserIdAndDocumentCategory(user.getId(), documentCategory);
+
         return documents.stream().map(
                 document -> DocumentResponse.builder()
                         .title(document.getTitle())

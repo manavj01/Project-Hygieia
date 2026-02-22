@@ -12,7 +12,7 @@ public interface DocumentRepository extends JpaRepository<Document, Long> {
 
     List<Document> findDocumentsByUserId(Long userId);
 
-    Boolean deleteDocumentById(Long id);
+    int deleteDocumentById(Long id);
 
     Document findDocumentById(Long id);
 

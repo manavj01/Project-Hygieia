@@ -1,5 +1,6 @@
 package com.hygieia.Project.Hygieia.service;
 
+import com.hygieia.Project.Hygieia.dto.UserLoginResponse;
 import com.hygieia.Project.Hygieia.dto.UserRegisterRequest;
 import com.hygieia.Project.Hygieia.dto.UserResponse;
 
@@ -11,5 +12,5 @@ public interface UserService {
 
     UserResponse findUserByEmail(String email) throws Exception;
 
-    String loginUser(String email, String password);
+    UserLoginResponse loginUser(String email, String password);
 }

@@ -38,7 +38,7 @@ public class Document implements Serializable {
     @Enumerated(EnumType.STRING)
     private DocumentCategory documentCategory;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "upload_id", unique = true)
     private Upload upload;
 }

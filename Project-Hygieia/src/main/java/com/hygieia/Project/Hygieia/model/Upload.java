@@ -26,8 +26,9 @@ public class Upload implements Serializable {
 
     private String contentType;
 
-    @Lob
-    @Column(nullable = false)
+
+    @Basic(fetch = FetchType.LAZY)
+    @Column(nullable = false, columnDefinition = "bytea")
     private byte[] data;
 
 
